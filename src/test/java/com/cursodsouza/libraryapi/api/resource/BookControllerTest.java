@@ -3,9 +3,12 @@ package com.cursodsouza.libraryapi.api.resource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -16,6 +19,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.cursodsouza.libraryapi.api.dto.BooKDTO;
+import com.cursodsouza.libraryapi.model.entity.Book;
+import com.cursodsouza.libraryapi.service.BookService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /*@RunWith(SpringRunner.class) -versão do junit 4*/
@@ -30,11 +35,18 @@ public class BookControllerTest {
 	@Autowired
 	MockMvc mvc;
 
+	@MockBean // mock especializado e colocar dentro do contexto de depêndencia
+	BookService service;
+
 	@Test
 	@DisplayName("Deve criar um livro com sucesso")
 	public void createBookTest() throws Exception {
 
 		BooKDTO dto = BooKDTO.builder().author("Artur").title("As aventuras").isbn("001").build();
+
+		Book saveBook = Book.builder().id(10l).author("Artur").title("As aventuras").isbn("001").build();
+		
+		BDDMockito.given(service.save(Mockito.any(Book.class))).willReturn(saveBook);
 
 		String json = new ObjectMapper().writeValueAsString(dto);
 
