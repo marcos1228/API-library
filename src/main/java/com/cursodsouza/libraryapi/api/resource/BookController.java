@@ -19,7 +19,6 @@ import com.cursodsouza.libraryapi.api.exception.BusinessException;
 import com.cursodsouza.libraryapi.model.entity.Book;
 import com.cursodsouza.libraryapi.service.BookService;
 
-
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
@@ -34,7 +33,7 @@ public class BookController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public BooKDTO create(@RequestBody  @Valid BooKDTO dto) {
+	public BooKDTO create(@RequestBody @Valid BooKDTO dto) {
 		Book entity = modelMapper.map(dto, Book.class);
 		entity = service.save(entity);
 		return modelMapper.map(entity, BooKDTO.class);
@@ -43,16 +42,16 @@ public class BookController {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ApiErrors handlerValidationExceptions(MethodArgumentNotValidException ex) {
-	BindingResult bindingResult =	ex.getBindingResult();
-	return new ApiErrors(bindingResult);
-		
+		BindingResult bindingResult = ex.getBindingResult();
+		return new ApiErrors(bindingResult);
+
 	}
-	
+
 	@ExceptionHandler(BusinessException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ApiErrors handleBusinessException(BusinessException ex) {
-		
+
 		return new ApiErrors(ex);
 	}
-	
+
 }
