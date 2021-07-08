@@ -1,5 +1,9 @@
 package com.cursodsouza.libraryapi.api.resource;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Optional;
+
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -87,15 +91,34 @@ public class BookControllerTest {
 		String json = new ObjectMapper().writeValueAsString(dto);
 		String mensagemErro = "isbn já cadastrado.";
 		BDDMockito.given(service.save(Mockito.any(Book.class))).willThrow(new BusinessException(mensagemErro));
-		
+
 		MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(BOOK_API)
 				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).content(json);
 		mvc.perform(request).andExpect(MockMvcResultMatchers.status().isBadRequest())
 				.andExpect(MockMvcResultMatchers.jsonPath("errors", Matchers.hasSize(1)))
-				.andExpect(MockMvcResultMatchers.jsonPath("errors[0]").value(mensagemErro))
-				;
-		
+				.andExpect(MockMvcResultMatchers.jsonPath("errors[0]").value(mensagemErro));
 
+	}
+
+	@Test
+	@DisplayName("Deve obter informaçõ")
+	public void getBookDetailsTest() throws Exception {
+		// cenario (given)
+		Long id = 1l;
+
+		Book book = Book.builder().id(id).title(createNewBook().getTitle()).author(createNewBook().getAuthor())
+				.isbn(createNewBook().getIsbn()).build();
+		BDDMockito.given(service.getById(id)).willReturn(Optional.of(book));
+
+		// execucao (when)
+		MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(BOOK_API.concat("/" + id))
+				.accept(MediaType.APPLICATION_JSON);
+
+		mvc.perform(request).andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("id").value(id))
+				.andExpect(MockMvcResultMatchers.jsonPath("title").value(createNewBook().getTitle()))
+				.andExpect(MockMvcResultMatchers.jsonPath("author").value(createNewBook().getAuthor()))
+				.andExpect(MockMvcResultMatchers.jsonPath("isbn").value(createNewBook().getIsbn()));
+		// verificação
 	}
 
 	public BooKDTO createNewBook() {
