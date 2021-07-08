@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cursodsouza.libraryapi.api.dto.BooKDTO;
 import com.cursodsouza.libraryapi.api.exception.ApiErrors;
+import com.cursodsouza.libraryapi.api.exception.BusinessException;
 import com.cursodsouza.libraryapi.model.entity.Book;
 import com.cursodsouza.libraryapi.service.BookService;
 
-import antlr.collections.List;
 
 @RestController
 @RequestMapping("/api/books")
@@ -47,4 +47,12 @@ public class BookController {
 	return new ApiErrors(bindingResult);
 		
 	}
+	
+	@ExceptionHandler(BusinessException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ApiErrors handleBusinessException(BusinessException ex) {
+		
+		return new ApiErrors(ex);
+	}
+	
 }
