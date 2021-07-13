@@ -169,21 +169,56 @@ public class BookControllerTest {
 		// Cenario (given)
 		Long id = 1l;
 		String json = new ObjectMapper().writeValueAsString(createNewBook());
-		BDDMockito.given(service.getById(Mockito.anyLong())).willReturn(Optional.of(Book.builder().id(1l).build()));
-
+		Book updatingBook = Book.builder().id(1l).title("Some title").author("some author").isbn("321").build();
+		BDDMockito.given(service.getById(id)).willReturn(Optional.of(updatingBook));
+		Book updateBook = Book.builder().id(id).author("Artur").title("As aventuras").isbn("321").build();
+		BDDMockito.given(service.update(updatingBook)).willReturn(updateBook);
+		
 		// execução
-		MockHttpServletRequestBuilder request = MockMvcRequestBuilders.put(BOOK_API.concat("/" + 1)
-				.);
-
+		MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+				.put(BOOK_API.concat("/" + 1))
+				.content(json)
+				.accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON);
+				
+				
 		// Verificação
 
-		mvc.perform(request).andExpect(MockMvcResultMatchers.status().isNoContent());
+		mvc
+		.perform(request)
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(MockMvcResultMatchers.jsonPath("id").value(id))
+		.andExpect(MockMvcResultMatchers.jsonPath("title").value(createNewBook().getTitle()))
+		.andExpect(MockMvcResultMatchers.jsonPath("author").value(createNewBook().getAuthor()))
+		.andExpect(MockMvcResultMatchers.jsonPath("isbn").value("321"));
+		
+		
+		;
+		
+		
 
 	}
 
 	@Test
 	@DisplayName("Deve retornar 404 ao tentar atualizar um livro  inexistente")
 	public void updateInexistentBookTest() throws Exception {
+		// Cenario (given)
+		String json = new ObjectMapper().writeValueAsString(createNewBook());
+		BDDMockito.given(service.getById(Mockito.anyLong())).willReturn(Optional.empty());
+
+		// execução
+		MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+				.put(BOOK_API.concat("/" + 1))
+				.content(json)
+				.accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON);
+				
+				
+		// Verificação
+
+		mvc
+		.perform(request)
+		.andExpect(MockMvcResultMatchers.status().isNotFound());
 		
 
 	}
